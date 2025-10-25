@@ -50,4 +50,9 @@ summary_tbl <- text_long |>
   )
 print(summary_tbl)
 
+
 write_csv(summary_tbl, "analysis/summary_by_group_time.csv")
+
+
+library(leaps)   #regsubsets()
+library(broom)   
