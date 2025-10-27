@@ -11,8 +11,8 @@ baseline and 6 months. Each participant is split into either group 1 or group 2.
 -**Summary Statistics**: Creates summary statistics of Text Messages by Group and Time.
 -**Documentation**: Update the README.md file with activity details and instructions.
 
-## How to Run RCloud
-1. Clone or open this repository in RCloud.  
+## How to Run in RCloud or R
+1. Clone or open this repository in R.  
 2. Ensure `TextMessages.csv` is in this folder.  
 3. Open and run the script.  
 4. Outputs (plots and tables) will save to the `figs/` and `analysis/` folders.
