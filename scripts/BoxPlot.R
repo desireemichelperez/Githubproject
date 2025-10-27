@@ -1,38 +1,41 @@
 # Assignment 3 - Git Hub Project 
 
-#Visualization 1: Creates stratified boxplot of text messages by Group and 
+# Visualization 1: Creates stratified boxplot of text messages by Group and 
 # Time (Hint: Faceted Boxplot).
 
-# set working directory
-setwd("~/BHDS 2010/Githubproject")
+#DM edit: avoid setwd(); keep script portable across machines/RCloud
+# setwd("~/BHDS 2010/Githubproject")  
+
+#DM edit: foolproof CSV path (works if file is in repo OR my in data/)
+csv_path <- if (file.exists("TextMessages.csv")) "TextMessages.csv" else "data/TextMessages.csv"
+
+#DM edit: load required packages up front (self-contained script)
+# install.packages("reshape2")  # run once if needed
+# install.packages("ggplot2")   # run once if needed
+library(reshape2)
+library(ggplot2)
 
 # load in the data
-txtmssg <- read.csv("TextMessages.csv", header=TRUE)
+txtmssg <- read.csv(csv_path, header = TRUE)
 
 # Check if Group is a factor
 is.factor(txtmssg$Group)
-txtmssg$Group<-as.factor(txtmssg$Group)
+txtmssg$Group <- as.factor(txtmssg$Group)
 # Group is now a factor
 
 # Convert Data to long format
-#install packages and load library
-#install.packages("reshape")
-library(reshape2)
-# convert the data
-txtmssg_long <- melt(txtmssg, 
-                     id.vars = c("Participant", "Group"), 
-                     variable.name = "Time", 
-                     value.name = "Messages")
-
-# install packages and load in library for ggplot
-#install.packages("ggplot2")
-library(ggplot2)
+txtmssg_long <- melt(
+  txtmssg, 
+  id.vars       = c("Participant", "Group"), 
+  variable.name = "Time", 
+  value.name    = "Messages"
+)
 
 # Create faceted boxplot object
 boxplot_txtmssg <- ggplot(txtmssg_long, aes(x = Time, y = Messages, fill = Time)) 
 
 # Plot faceted boxplot by Group
-boxplot_txtmssg + 
+p_box <- boxplot_txtmssg + 
   geom_boxplot(alpha = 0.6) +
   labs(
     title = "Total Text Messages by Time Point and Group",
@@ -43,6 +46,15 @@ boxplot_txtmssg +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = "none")
+
+#DM edit: print so the plot appears in the Plots pane
+print(p_box)
+
+#DM edit: save to a standard figures/ folder
+dir.create("figures", showWarnings = FALSE)
+ggsave("figures/faceted_boxplot_by_group_time.png", p_box, width = 8, height = 4.5, dpi = 300)
+
+
 # Group 1 has a median text messages decrease from Baseline to Six months, the
 # spread (IQR) seems slightly narrower at Six months. Group 1 also has several 
 # outliers below the lower whisker at six months, indicating a few participants 

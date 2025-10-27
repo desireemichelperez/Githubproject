@@ -1,35 +1,42 @@
+
 # Assignment 3 - Git Hub Project 
 
 # Visualization 2: Creates stratified bar charts of text messages Group and 
 # Time (Hint: Faceted Bar Charts).
 
-# set working directory
-setwd("~/BHDS 2010/Githubproject")
+#DM edit: avoid setwd() so the script works on any machine/RCloud 
+#setwd("~/BHDS 2010/Githubproject")  #removed
+
+#DM edit: foolproof CSV path (works if file is in repo OR in my data/) 
+csv_path <- if (file.exists("TextMessages.csv")) "TextMessages.csv" else "data/TextMessages.csv"
+
+#DM edit: load required packages up front in the script to ensure it loads everytime (self-contained script) 
+# install.packages("reshape2")  # run once if needed
+# install.packages("ggplot2")   # run once if needed
+library(reshape2)
+library(ggplot2)
 
 # load in the data
-txtmssg <- read.csv("TextMessages.csv", header=TRUE)
+txtmssg <- read.csv(csv_path, header = TRUE)
 
 # Check if Group is a factor
 is.factor(txtmssg$Group)
-txtmssg$Group<-as.factor(txtmssg$Group)
+txtmssg$Group <- as.factor(txtmssg$Group)
 is.factor(txtmssg$Group)
 # Group is now a factor
 
 # Convert Data to long format
-#install packages and load library
-#install.packages("reshape")
-library(reshape2)
-# convert the data
-txtmssg_long <- melt(txtmssg, 
-                     id.vars = c("Participant", "Group"), 
-                     variable.name = "Time", 
-                     value.name = "Messages")
+txtmssg_long <- melt(
+  txtmssg, 
+  id.vars       = c("Participant", "Group"), 
+  variable.name = "Time", 
+  value.name    = "Messages"
+)
 
 # install packages and load in library for ggplot
-#install.packages("ggplot2")
-library(ggplot2)
+# library(ggplot2)  # already loaded above
 
-# create faceted bar plot object
+#DM edit: make plot object explicit so we can print/save all the time
 barWithErrors_txtmssg <- ggplot(txtmssg_long, aes(x = Time, y = Messages))
 
 # Check group means to help set plot limits (optional)
@@ -37,10 +44,9 @@ by(txtmssg_long$Messages, txtmssg_long$Time, mean)
 
 # Create a faceted bar plot showing total text messages by time point,
 # with red mean points and 95% confidence intervals, faceted by Group
-barWithErrors_txtmssg + 
-  stat_summary(fun = mean, geom = "bar", 
-               fill = "white", colour = "black") + 
-  stat_summary(fun.data = mean_cl_normal, geom = "pointrange", colour = "red") + 
+p_bar <- barWithErrors_txtmssg + 
+  stat_summary(fun = mean, geom = "bar", fill = "white", colour = "black") + 
+  stat_summary(fun.data = ggplot2::mean_cl_normal, geom = "pointrange", colour = "red") + 
   labs(
     title = "Mean Total Text Messages by Time Point For Group 1 and Group 2",
     x = "Time Point",
@@ -49,6 +55,15 @@ barWithErrors_txtmssg +
   facet_wrap(~ Group) +
   theme_minimal() + 
   theme(plot.title = element_text(hjust = 0.5))  # center title
+
+#DM edit: print so plot appears in Plots pane in RCloud
+print(p_bar)
+
+1#DM edit: save to a standard figures/ folder (create if missing)
+dir.create("figures", showWarnings = FALSE)
+ggsave("figures/faceted_bar_means.png", p_bar, width = 8, height = 4.5, dpi = 300)
+
+
 # The plot shows mean total text messages at two time points (Baseline and 
 # Six months) for two groups (Group 1 on the left, Group 2 on the right). The 
 # bars represent the mean, and the red points with error bars likely indicate the 
